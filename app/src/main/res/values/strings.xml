@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Credential-Manager</string>
+    <!-- https://medium.com/novumlogic/using-androids-new-credential-manager-api-14a661cca66f -->
+</resources>
