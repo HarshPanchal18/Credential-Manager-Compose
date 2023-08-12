@@ -196,7 +196,11 @@ fun UserInputText(
 }
 
 @Composable
-fun RequestAccessButton(title: String, modifier: Modifier, onMessageSent: () -> Unit) {
+fun RequestAccessButton(
+    title: String,
+    modifier: Modifier,
+    onMessageSent: () -> Unit
+) {
     val disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
     val buttonColors = ButtonDefaults.buttonColors(
         disabledContainerColor = Color.Transparent,

@@ -8,7 +8,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object BindingModule {
+object BindingModule { // A class that has only one instance, and it can be accessed by any other class in the application
     @Provides
     fun providesRepository() = CredManagerRepository()
 }

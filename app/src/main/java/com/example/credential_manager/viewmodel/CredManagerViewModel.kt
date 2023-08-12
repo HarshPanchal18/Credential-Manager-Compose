@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.credential_manager.data.CredManagerRepository
 import com.example.credential_manager.data.CredManagerResult
 import com.example.credential_manager.data.CredManagerUiState
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +17,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CredManagerViewModel @Inject constructor(private val credManagerRepository: CredManagerRepository) :
+class CredManagerViewModel @Inject constructor(
+    private val credManagerRepository: CredManagerRepository
+) :
     ViewModel() {
-    private val _uiState = MutableStateFlow(CredManagerUiState())
+    private val _uiState = MutableStateFlow(CredManagerUiState()) // It can change state and has access to all of the methods on StateFlow
     val uiState: StateFlow<CredManagerUiState> = _uiState.asStateFlow()
     var isCredentialSaved = mutableStateOf(false)
     private lateinit var credentialManager: CredentialManager
@@ -29,6 +30,7 @@ class CredManagerViewModel @Inject constructor(private val credManagerRepository
     fun isUsernameValid(username: String) {
         _uiState.update { currState ->
             currState.copy(isUsernameValid = username.isNotEmpty())
+            // Making sure that currState holds true whenever someone enters anything into username
         }
     }
 
@@ -54,7 +56,7 @@ class CredManagerViewModel @Inject constructor(private val credManagerRepository
 
     private fun handleResult(result: CredManagerResult) {
         when {
-            result.credentials != null -> {
+            result.credentials != null -> { // If result got the positive output
                 _uiState.update { currState ->
                     currState.copy(
                         signedInPasswordCredential = result.credentials,
@@ -63,9 +65,9 @@ class CredManagerViewModel @Inject constructor(private val credManagerRepository
                 }
             }
 
-            result.error != null -> {
-                _uiState.update { currentState ->
-                    currentState.copy(
+            result.error != null -> { // If there is any error comes with result
+                _uiState.update { currState ->
+                    currState.copy(
                         signedInPasswordCredential = null,
                         errorMessage = result.error.errorMessage
                     )
@@ -75,8 +77,8 @@ class CredManagerViewModel @Inject constructor(private val credManagerRepository
     }
 
     fun simulateLogout() {
-        _uiState.update {
-            it.copy(signedInPasswordCredential = null, errorMessage = "")
+        _uiState.update { currState -> // make credentials to null for logging out user
+            currState.copy(signedInPasswordCredential = null, errorMessage = "")
         }
     }
 
@@ -86,13 +88,14 @@ class CredManagerViewModel @Inject constructor(private val credManagerRepository
             credManagerRepository.isCredentialSaved(activity, credentialManager, viewModelScope)
         isCredentialSaved.value = credentials != null
 
+        // Update the UI with the new state
         if (credentials == null) {
-            _uiState.update {
-                it.copy(signedInPasswordCredential = null, errorMessage = "")
+            _uiState.update { currState ->
+                currState.copy(signedInPasswordCredential = null, errorMessage = "")
             }
         } else {
-            _uiState.update { // Sign in with credentials
-                it.copy(signedInPasswordCredential = credentials)
+            _uiState.update { currState -> // Sign in with credentials
+                currState.copy(signedInPasswordCredential = credentials)
             }
         }
     }

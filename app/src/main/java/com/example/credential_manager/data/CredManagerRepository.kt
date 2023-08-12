@@ -24,7 +24,6 @@ class CredManagerRepository {
 
     /**
      * Create new credentials with credential manager
-     *
      * @param activity - the activity context needed to show the credentials flow dialog to the user
      * @param username - username
      * @param password - password
@@ -48,10 +47,11 @@ class CredManagerRepository {
         credentialManager: CredentialManager,
         coroutineScope: CoroutineScope
     ): PasswordCredential? = suspendCoroutine { continuation ->
+        // suspendCoroutine - suspends execution of function until there is an activity that needs credentials from this function again.
         coroutineScope.launch {
             try {
-                val getCredRequest = GetCredentialRequest(listOf(GetPasswordOption()))
-                val credentialResponse = credentialManager.getCredential(
+                val getCredRequest = GetCredentialRequest(listOf(GetPasswordOption())) // A request to retrieve the user's saved application password from their password provider.
+                val credentialResponse = credentialManager.getCredential( // Requests a credential from the user.
                     request = getCredRequest,
                     activity = activity,
                 )
@@ -79,18 +79,18 @@ class CredManagerRepository {
         password: String
     ): CredManagerResult {
         return try {
-            val response = credentialManager.createCredential(
+            val response = credentialManager.createCredential( // Registers a user credential that can be used to authenticate the user to the app in the future.
                 request = CreatePasswordRequest(username, password),
                 activity = activity,
             )
 
             Log.e(TAG, "Credentials successfully added: ${response.data}")
-            CredManagerResult(credentials = PasswordCredential(username, password))
+            CredManagerResult(credentials = PasswordCredential(username, password)) // Represents the user's password credential granted by the user for app sign-in.
         } catch (e: CreateCredentialCancellationException) {
             Log.e(TAG, "User cancelled the save flow")
             CredManagerResult(error = Error("User cancelled the save flow"))
         } catch (e: CreateCredentialException) {
-            Log.e(TAG, "Credentials cannot be saved", e)
+            Log.e(TAG, "Credentials cannot be saved",e)
             CredManagerResult(error = Error("Credentials cannot be saved"))
         }
     }
@@ -101,7 +101,6 @@ class CredManagerRepository {
     ): CredManagerResult {
         return try {
             val getCredRequest = GetCredentialRequest(listOf(GetPasswordOption()))
-
             val credentialResponse = credentialManager.getCredential(
                 request = getCredRequest,
                 activity = activity
